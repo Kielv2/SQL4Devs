@@ -71,6 +71,43 @@ AS
     FETCH NEXT @Length ROWS ONLY
 
 /** Q3 **/
+SELECT * INTO [dbo].[ProductBackup]
+FROM [dbo].[Product]
+
+DECLARE @CategoryId INT
+DECLARE @CategoryName VARCHAR(255)
+DECLARE CategoryCursor CURSOR
+FOR SELECT c.CategoryId AS CategoryId, c.CategoryName
+	FROM dbo.Category c OPEN CategoryCursor;
+	FETCH NEXT FROM CategoryCursor INTO @CategoryId, @CategoryName;
+		WHILE(@@FETCH_STATUS = 0)
+		BEGIN
+			IF(@CategoryName = 'Children Bicycles'
+			OR @CategoryName = 'Cyclocross Bicycles'
+			OR @CategoryName = 'Road Bikes')
+				BEGIN
+					UPDATE [dbo].[ProductBackup]
+					SET ListPrice = (ListPrice * 1.2)
+					WHERE CategoryId = @CategoryId;
+				END;
+			IF(@CategoryName = 'Comfort Bicycles'
+			OR @CategoryName = 'Cruisers Bicycles'
+			OR @CategoryName = 'Electric Bikes')
+				BEGIN
+					UPDATE [dbo].[ProductBackup]
+					SET ListPrice = (ListPrice * 1.7)
+					WHERE CategoryId = @CategoryId;
+				END;
+			IF(@CategoryName = 'Mountain Bikes')
+			BEGIN
+				UPDATE [dbo].[ProductBackup]
+				SET ListPrice = (ListPrice * 1.4)
+				WHERE CategoryId = @CategoryId;
+				END;
+			FETCH NEXT FROM CategoryCursor INTO @CategoryId, @CategoryName;
+		END;
+CLOSE CategoryCursor;
+DEALLOCATE CategoryCursor
 
 /** Q4 **/
 CREATE TABLE Ranking (
